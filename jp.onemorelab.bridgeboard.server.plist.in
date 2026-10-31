@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  LaunchAgent template for the BridgeBoard server.
+  install.sh fills the three placeholders between @ signs (PYTHON, SUPPORT, HOME) and writes the result to
+  ~/Library/LaunchAgents/. Do not edit the written file by hand; run install.sh again instead.
+  The server runs from the "current" link inside the support folder, so it does not depend on where the repository was cloned.
+  The environment is only PATH, PYTHONUTF8 and PYTHONDONTWRITEBYTECODE (nothing is carried over from the shell that ran install.sh;
+  no .pyc files are written outside the support folder).
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>jp.onemorelab.bridgeboard.server</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>@PYTHON@</string>
+    <string>@SUPPORT@/current/listserver.py</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+  <key>StandardOutPath</key>
+  <string>@HOME@/Library/Logs/BridgeBoard/launchd.out</string>
+  <key>StandardErrorPath</key>
+  <string>@HOME@/Library/Logs/BridgeBoard/launchd.err</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/usr/bin:/bin:/usr/sbin:/sbin</string>
+    <key>PYTHONUTF8</key>
+    <string>1</string>
+    <key>PYTHONDONTWRITEBYTECODE</key>
+    <string>1</string>
+  </dict>
+</dict>
+</plist>

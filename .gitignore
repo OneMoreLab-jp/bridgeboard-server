@@ -1,0 +1,8 @@
+# 自動で作られる課題台帳・メモは公開しない
+BACKLOG.md
+docs/
+.dashboard-meta.json
+
+__pycache__/
+*.pyc
+.DS_Store

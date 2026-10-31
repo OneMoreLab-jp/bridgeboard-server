@@ -1,0 +1,5 @@
+#!/bin/bash
+# bbctl: manage the BridgeBoard server's paired devices (bbctl pair | devices | revoke <id>).
+# install.sh writes this launcher from bbctl.in with the Python it chose; it just runs bbctl.py with that Python.
+export PYTHONDONTWRITEBYTECODE=1
+exec @PYTHON@ "$(cd "$(dirname "$0")" && pwd -P)/bbctl.py" "$@"
