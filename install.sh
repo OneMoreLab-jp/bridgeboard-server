@@ -111,8 +111,10 @@ config_trusted() {   # the same rule as the server: a regular file that is mine 
     && [ $((0$(stat -f %Lp "$CONFIG") & 022)) -eq 0 ]
 }
 
-# Prints the first usable Python 3.9+ (see py_ok): "python" in config.json, PATH, /opt/homebrew/bin, /usr/local/bin, /usr/bin.
+# Prints the first usable Python 3.9+ (see py_ok): "python" in config.json, /usr/bin/python3, PATH, /opt/homebrew/bin, /usr/local/bin.
 # A "python" in config.json that fails py_ok is not used (install.sh then writes the one it found back into config.json).
+# The system Python comes before PATH because the server keeps running with the Python chosen here: one found through PATH
+# (Homebrew and the like) can be upgraded or removed later, while /usr/bin/python3 stays where it is.
 # /usr/bin/python3 on a Mac without the Command Line Tools is only a stub that opens an installer window, so it is not run then.
 find_python() {
   local configured="" cand
@@ -120,8 +122,8 @@ find_python() {
     configured="$(/usr/bin/plutil -extract python raw -o - "$CONFIG" 2> /dev/null || true)"
     case "$configured" in "~/"*) configured="$HOME/${configured#\~/}" ;; esac
   fi
-  for cand in "$configured" "$(command -v python3 2> /dev/null || true)" "$FS_ROOT/opt/homebrew/bin/python3" \
-    "$FS_ROOT/usr/local/bin/python3" "$FS_ROOT/usr/bin/python3"; do
+  for cand in "$configured" "$FS_ROOT/usr/bin/python3" "$(command -v python3 2> /dev/null || true)" \
+    "$FS_ROOT/opt/homebrew/bin/python3" "$FS_ROOT/usr/local/bin/python3"; do
     [ -n "$cand" ] || continue
     case "$cand" in
       /usr/bin/python3 | "$FS_ROOT"/usr/bin/python3) clt_ok || continue ;;
@@ -153,7 +155,7 @@ if [ "$mode" = check ]; then
   if PY="$(find_python)"; then
     echo "ok python>=3.9 $PY"
   else
-    echo "fail python>=3.9 no Python 3.9 or newer that runs under launchd found (looked at config.json, PATH, /opt/homebrew/bin, /usr/local/bin and /usr/bin/python3; virtual environments and programs that need more than PATH=/usr/bin:/bin:/usr/sbin:/sbin are skipped)"
+    echo "fail python>=3.9 no Python 3.9 or newer that runs under launchd found (looked at config.json, /usr/bin/python3, PATH, /opt/homebrew/bin and /usr/local/bin; virtual environments and programs that need more than PATH=/usr/bin:/bin:/usr/sbin:/sbin are skipped)"
     failed=1
   fi
   if [ -n "$PY" ]; then

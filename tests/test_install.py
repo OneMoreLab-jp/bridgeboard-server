@@ -335,7 +335,7 @@ class CheckTest(InstallCase):
         self.assertFalse(marker.exists(), "CLT が無いのに /usr/bin/python3 を実行した")
 
     def test_python_search_order(self):
-        """config.json の python → PATH → /opt/homebrew/bin → /usr/local/bin（→ CLT があれば /usr/bin）。"""
+        """config.json's python, /usr/bin/python3 (only with the Command Line Tools; this test has none), PATH, /opt/homebrew/bin, /usr/local/bin."""
         def fake_python(path: Path) -> Path:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")        # 3.9 以上か？ に「はい」
@@ -415,6 +415,50 @@ class CheckTest(InstallCase):
         self.env["BB_SENTINEL"] = "1"
         self.assertEqual(self.python_line(), f"ok python>=3.9 {probe}")
         self.assertEqual(seen.read_text(encoding="utf-8").strip(), "home=unset sentinel=unset path=/usr/bin:/bin:/usr/sbin:/sbin")
+
+    # ---- the system Python comes before PATH (a PATH Python can be upgraded or removed later, e.g. by Homebrew)
+
+    def system_python(self, body: str = "exit 0\n") -> Path:
+        return self.fake_python(self.fsroot / "usr" / "bin" / "python3", body)
+
+    def path_python(self) -> Path:
+        """A working python3 that comes first on PATH, in a folder of its own (not the system or Homebrew place)."""
+        on_path = self.fake_python(self.tmp / "pathdir" / "python3")
+        self.set_path(f"{on_path.parent}:{self.bin}:{self.system_path}")
+        return on_path
+
+    def test_prefers_system_python_over_path(self):
+        system = self.system_python()
+        self.path_python()
+        self.assertEqual(self.python_line(), f"ok python>=3.9 {system}")
+
+    def test_prefers_system_python_over_homebrew(self):
+        system = self.system_python()
+        self.path_python()
+        self.fake_python(self.fsroot / "opt" / "homebrew" / "bin" / "python3")
+        self.fake_python(self.fsroot / "usr" / "local" / "bin" / "python3")
+        self.assertEqual(self.python_line(), f"ok python>=3.9 {system}")
+
+    def test_config_python_still_wins(self):
+        self.system_python()
+        self.path_python()
+        configured = self.fake_python(self.tmp / "mine" / "python3")
+        self.write_config(python=str(configured))
+        self.assertEqual(self.python_line(), f"ok python>=3.9 {configured}")
+
+    def test_falls_back_when_system_python_is_stub(self):
+        # Without the Command Line Tools /usr/bin/python3 is a stub that opens an installer window: never run it
+        ran = self.tmp / "stub-ran"
+        self.system_python(f"touch '{ran}'\nexit 0\n")
+        on_path = self.path_python()
+        (self.state / "no-clt").touch()
+        self.assertEqual(self.python_line(), f"ok python>=3.9 {on_path}")
+        self.assertFalse(ran.exists(), "ran /usr/bin/python3 although the Command Line Tools are missing")
+
+    def test_falls_back_when_system_python_too_old(self):
+        self.system_python("exit 1\n")                   # answers "no" to the 3.9-or-newer check, as a 3.8 would
+        on_path = self.path_python()
+        self.assertEqual(self.python_line(), f"ok python>=3.9 {on_path}")
 
     def test_a_configured_python_that_fails_the_check_is_not_used(self):
         venv_python = self.make_venv()

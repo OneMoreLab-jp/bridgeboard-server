@@ -32,7 +32,7 @@ BridgeBoard は OneMore Lab の独立したプロジェクトです。**Anthropi
 自分でやるときは、ターミナルで（タグは欲しいリリースのものに）：
 
 ```bash
-git clone --depth 1 --branch v0.1.1 https://github.com/OneMoreLab-jp/bridgeboard-server.git
+git clone --depth 1 --branch v0.1.2 https://github.com/OneMoreLab-jp/bridgeboard-server.git
 cd bridgeboard-server
 git rev-parse HEAD          # GitHub のタグと見比べる
 ./install.sh --check        # 何も変えない
@@ -49,7 +49,7 @@ git rev-parse HEAD          # GitHub のタグと見比べる
 | 項目 | 確かめること |
 |---|---|
 | `clt` | `xcode-select -p` が通る（コマンドラインツールが入っている） |
-| `python>=3.9` | launchd の下で動く Python 3.9 以上が見つかる。探す順は `config.json` の `python`、`PATH`、`/opt/homebrew/bin`、`/usr/local/bin`、`/usr/bin/python3`（最後はコマンドラインツールがあるときだけ）。候補はそれぞれ、launchd がサーバーを動かすのと同じ形、つまり `PATH=/usr/bin:/bin:/usr/sbin:/sbin` だけを持つ空の環境で動かして確かめます。それ以上を必要とする Python（pyenv の shim など）と、仮想環境の中の Python は飛ばします。`config.json` の `python` がこれに通らなければ使わず、`install.sh` が選び直したものを `config.json` に書き戻します |
+| `python>=3.9` | launchd の下で動く Python 3.9 以上が見つかる。探す順は `config.json` の `python`、`/usr/bin/python3`（コマンドラインツールがあるときだけ）、`PATH`、`/opt/homebrew/bin`、`/usr/local/bin`。候補はそれぞれ、launchd がサーバーを動かすのと同じ形、つまり `PATH=/usr/bin:/bin:/usr/sbin:/sbin` だけを持つ空の環境で動かして確かめます。それ以上を必要とする Python（pyenv の shim など）と、仮想環境の中の Python は飛ばします。`config.json` の `python` がこれに通らなければ使わず、`install.sh` が選び直したものを `config.json` に書き戻します |
 | `tailscale` | `tailscale` コマンドが見つかり（`config.json`、`PATH`、Homebrew、`/Applications/Tailscale.app`、`~/Applications/Tailscale.app`）、`BackendState` が `Running` |
 | `magicdns` | `tailscale status --json` が、tailnet で MagicDNS が有効（`CurrentTailnet.MagicDNSEnabled`）で、この Mac に DNS の名前がある（`Self.DNSName`）と答える。`tailscale` の項目が失敗しているときは `warn ... not checked` |
 | `ports` | 2つのポート（既定は 8772 と 8773）が空いている。このサーバー自身の LaunchAgent が入っているときは、使用中なのが当然なので通す |

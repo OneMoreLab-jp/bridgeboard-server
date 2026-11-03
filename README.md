@@ -32,7 +32,7 @@ The easiest way is the setup prompt. Open Claude Code in any folder on the Mac, 
 Or do it yourself in Terminal (use the tag of the release you want):
 
 ```bash
-git clone --depth 1 --branch v0.1.1 https://github.com/OneMoreLab-jp/bridgeboard-server.git
+git clone --depth 1 --branch v0.1.2 https://github.com/OneMoreLab-jp/bridgeboard-server.git
 cd bridgeboard-server
 git rev-parse HEAD          # compare with the tag on GitHub
 ./install.sh --check        # changes nothing
@@ -49,7 +49,7 @@ One line per item, `ok`, `warn` or `fail`, followed by details or a reason. The 
 | Item | What it checks |
 |---|---|
 | `clt` | `xcode-select -p` works (the Command Line Tools are installed) |
-| `python>=3.9` | A Python 3.9 or newer that works under launchd is found. Looked at in this order: `python` in `config.json`, `PATH`, `/opt/homebrew/bin`, `/usr/local/bin`, and `/usr/bin/python3` (the last one only if the Command Line Tools are installed). Each candidate is run the way launchd runs the server, with an empty environment except `PATH=/usr/bin:/bin:/usr/sbin:/sbin`, so a Python that needs more than that (a pyenv shim, for example) is skipped, and so is a Python inside a virtual environment. A `python` in `config.json` that fails this is not used; `install.sh` writes the one it chose back into `config.json` |
+| `python>=3.9` | A Python 3.9 or newer that works under launchd is found. Looked at in this order: `python` in `config.json`, `/usr/bin/python3` (only if the Command Line Tools are installed), `PATH`, `/opt/homebrew/bin` and `/usr/local/bin`. Each candidate is run the way launchd runs the server, with an empty environment except `PATH=/usr/bin:/bin:/usr/sbin:/sbin`, so a Python that needs more than that (a pyenv shim, for example) is skipped, and so is a Python inside a virtual environment. A `python` in `config.json` that fails this is not used; `install.sh` writes the one it chose back into `config.json` |
 | `tailscale` | The `tailscale` command is found (`config.json`, `PATH`, Homebrew, `/Applications/Tailscale.app`, `~/Applications/Tailscale.app`) and its `BackendState` is `Running` |
 | `magicdns` | `tailscale status --json` says MagicDNS is enabled for the tailnet (`CurrentTailnet.MagicDNSEnabled`) and gives this Mac a DNS name (`Self.DNSName`). It is `warn ... not checked` when the `tailscale` item failed |
 | `ports` | The two ports (8772 and 8773 by default) are free. If this server's own LaunchAgent is loaded, they are expected to be in use |
