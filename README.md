@@ -32,7 +32,7 @@ The easiest way is the setup prompt. Open Claude Code in any folder on the Mac, 
 Or do it yourself in Terminal (use the tag of the release you want):
 
 ```bash
-git clone --depth 1 --branch v0.1.0 https://github.com/OneMoreLab-jp/bridgeboard-server.git
+git clone --depth 1 --branch v0.1.1 https://github.com/OneMoreLab-jp/bridgeboard-server.git
 cd bridgeboard-server
 git rev-parse HEAD          # compare with the tag on GitHub
 ./install.sh --check        # changes nothing
@@ -108,7 +108,7 @@ It never shows:
 - Files that git ignores, unless `showGitIgnored` is `true`. This uses `git check-ignore`, so it applies only inside git repositories.
 - Pairing codes, device keys and the server's `secret`.
 
-A project is the folder where a session runs, or the top of its git repository. A git answer that points above the working folder (for example through `core.worktree`) is not trusted, so a project never grows to a parent folder.
+A project is the folder where a session runs, or the top of its git repository. If the top of the git repository is the home folder or above it, the session's working folder is used instead. The home repository's .gitignore does not apply to that folder, so files it ignores can be shown there; the secret-file name rules still apply. A git answer that points above the working folder (for example through `core.worktree`) is not trusted, so a project never grows to a parent folder.
 
 ## Security notes
 

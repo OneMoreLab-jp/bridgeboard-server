@@ -32,7 +32,7 @@ BridgeBoard は OneMore Lab の独立したプロジェクトです。**Anthropi
 自分でやるときは、ターミナルで（タグは欲しいリリースのものに）：
 
 ```bash
-git clone --depth 1 --branch v0.1.0 https://github.com/OneMoreLab-jp/bridgeboard-server.git
+git clone --depth 1 --branch v0.1.1 https://github.com/OneMoreLab-jp/bridgeboard-server.git
 cd bridgeboard-server
 git rev-parse HEAD          # GitHub のタグと見比べる
 ./install.sh --check        # 何も変えない
@@ -108,7 +108,7 @@ AI アシスタントが `bbctl pair` を走らせたときは、出力に符号
 - git が無視しているファイル（`showGitIgnored` が `true` のときを除く）。`git check-ignore` で判定するので、git のリポジトリの中だけに効きます。
 - 組む符号・端末の鍵・サーバーの `secret`。
 
-プロジェクトは、セッションが動いているフォルダか、その git リポジトリの一番上です。git の答えが作業フォルダより上を指したとき（`core.worktree` の細工など）は信用しないので、プロジェクトが親のフォルダまで広がることはありません。
+プロジェクトは、セッションが動いているフォルダか、その git リポジトリの一番上です。git リポジトリの一番上がホームそのものか、それより上なら、代わりにセッションの作業フォルダを使います。そのフォルダにはホームのリポジトリの .gitignore が効かないので、そこで無視しているファイルも見えることがあります。秘密のファイルの名前の決まりは効きます。git の答えが作業フォルダより上を指したとき（`core.worktree` の細工など）は信用しないので、プロジェクトが親のフォルダまで広がることはありません。
 
 ## セキュリティの覚え書き
 

@@ -350,6 +350,81 @@ class ProjectTest(CatalogCase):
         p = self.project(cat, "plain")
         self.assertEqual((p["path"], p["isGit"], p["sessionCount"]), (str(work), False, 1))
 
+    def test_git_repo_at_home_uses_the_working_folder(self):
+        make_repo(self.home)
+        work = self.home / "a" / "b"
+        work.mkdir(parents=True)
+        self.add(101, cwd=str(work), bridgeSessionId="session_home_repo")
+        cat = self.make_catalog(git=run_git)
+        s = cat.session("session_home_repo")
+        self.assertEqual((s["projectId"], s["rootId"]), (folder_id(work),) * 2)
+        p = self.project(cat, "b")
+        self.assertEqual((p["name"], p["filesVisible"], p["isGit"]), ("b", True, False))
+
+    def test_session_at_home_with_git_repo_stays_home_and_hidden(self):
+        make_repo(self.home)
+        self.add(101, cwd=str(self.home), bridgeSessionId="session_home")
+        cat = self.make_catalog(git=run_git)
+        s = cat.session("session_home")
+        self.assertEqual((s["projectId"], s["rootId"]), (folder_id(self.home),) * 2)
+        p = self.project(cat, "home")
+        self.assertEqual(os.path.realpath(p["path"]), os.path.realpath(self.home))
+        self.assertEqual((p["filesVisible"], p["isGit"]), (False, True))
+
+    def test_git_repo_above_home_uses_the_working_folder(self):
+        make_repo(self.tmp)
+        work = self.home / "a" / "b"
+        work.mkdir(parents=True)
+        self.add(101, cwd=str(work), bridgeSessionId="session_above_home")
+        cat = self.make_catalog(git=run_git)
+        s = cat.session("session_above_home")
+        self.assertEqual((s["projectId"], s["rootId"]), (folder_id(work),) * 2)
+        p = self.project(cat, "b")
+        self.assertEqual((p["path"], p["filesVisible"], p["isGit"]), (str(work), True, False))
+
+    def test_home_repo_matches_through_symlink(self):
+        make_repo(self.home)
+        work = self.home / "a" / "b"
+        work.mkdir(parents=True)
+        linked_home = self.tmp / "linked-home"
+        os.symlink(self.home, linked_home)
+        self.add(101, cwd=str(work), bridgeSessionId="session_linked_home")
+        cat = Catalog(self.claude, [(self.lab, 2)], linked_home, self.own, start_of=self.start_of,
+                      git=run_git, alive=self.live.__contains__, secret=SECRET)
+        s = cat.session("session_linked_home")
+        self.assertEqual((s["projectId"], s["rootId"]), (folder_id(work),) * 2)
+        self.assertEqual((self.project(cat, "b")["filesVisible"], self.project(cat, "b")["isGit"]), (True, False))
+
+    def test_repo_below_home_with_git_at_home_still_uses_repo(self):
+        make_repo(self.home)
+        repo = make_repo(self.home / "p")
+        sub = repo / "sub"
+        sub.mkdir()
+        self.add(101, cwd=str(sub), bridgeSessionId="session_nested_repo")
+        cat = self.make_catalog(git=run_git)
+        s = cat.session("session_nested_repo")
+        self.assertEqual((s["projectId"], s["rootId"]), (folder_id(repo),) * 2)
+        p = self.project(cat, "p")
+        self.assertEqual(os.path.realpath(p["path"]), os.path.realpath(repo))
+        self.assertIs(p["isGit"], True)
+
+    def test_launcher_card_and_session_match_with_git_at_home(self):
+        make_repo(self.home)
+        work = self.home / "a" / "test_bb"
+        work.mkdir(parents=True)
+        projects = self.claude / "projects" / "-home-a-test-bb"
+        projects.mkdir(parents=True)
+        transcript = projects / "session.jsonl"
+        transcript.write_text(json.dumps({"type": "user", "cwd": str(work), "message": {"content": "hi"}}) + "\n",
+                              encoding="utf-8")
+        self.add(101, cwd=str(work), bridgeSessionId="session_launcher")
+        cat = Catalog(self.claude, [], self.home, self.own, start_of=self.start_of, git=run_git,
+                      alive=self.live.__contains__, secret=SECRET, launcher_auto=True)
+        s = cat.session("session_launcher")
+        p = self.project(cat, "test_bb")
+        self.assertEqual(s["projectId"], p["id"])
+        self.assertEqual(p["sessionCount"], 1)
+
     def test_launcher_lists_every_lab_folder_even_without_sessions(self):
         a = self.folder("10_work", "A")
         b = self.folder("30_devices", "B")

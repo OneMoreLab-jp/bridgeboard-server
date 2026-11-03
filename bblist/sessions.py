@@ -508,6 +508,15 @@ class Catalog:
         kind = _git_entry_kind(top, common)
         if kind is None:
             return cwd, cwd, None, True
+        # ホームを dotfiles のリポジトリにしていると、普通の作業フォルダまでホームのプロジェクトへ集約される。
+        # top がホームそのものかその祖先なら、cwd がホーム自身のときだけ従来どおりにし、それ以外は git でない cwd として扱う。
+        # realpath の各部分を NFC・casefold して比べ、リンク・macOS の大文字小文字・NFC/NFD の綴りの違いを吸収する。
+        top_parts = tuple(nfc(p).casefold() for p in Path(os.path.realpath(top)).parts)
+        home_parts = tuple(nfc(p).casefold() for p in Path(os.path.realpath(self._home)).parts)
+        cwd_parts = tuple(nfc(p).casefold() for p in Path(os.path.realpath(cwd)).parts)
+        if (cwd_parts != home_parts and len(top_parts) <= len(home_parts)
+                and home_parts[:len(top_parts)] == top_parts):
+            return cwd, cwd, None, False
         # worktree は、.git のファイルが <common>/worktrees/<名前> を指し、その gitdir が .git へ戻る本物だけ。サブモジュールや
         # --separate-git-dir（kind は repo）、core.worktree で作業コピーを .git などに向けただけのもの（worktree として扱うと .git/config まで
         # 見せてしまう）は worktree と見なさない。common-dir の名前が .git でないのは bare の worktree。その親は使わない

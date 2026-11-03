@@ -10,10 +10,10 @@
 
 ## 手順
 
-1. リリース `v0.1.0` を新しい一時フォルダに取得する（私が開いているフォルダには取らない）。次の1つのコマンドが、コミットの ID と、取得したフォルダの絶対パスをこの順に出す。ID は私に伝える（GitHub のタグと私が見比べます）。パスは控える：
+1. リリース `v0.1.1` を新しい一時フォルダに取得する（私が開いているフォルダには取らない）。次の1つのコマンドが、コミットの ID と、取得したフォルダの絶対パスをこの順に出す。ID は私に伝える（GitHub のタグと私が見比べます）。パスは控える：
 
    ```
-   CLONE="$(mktemp -d)/bridgeboard-server" && git clone --depth 1 --branch v0.1.0 https://github.com/OneMoreLab-jp/bridgeboard-server.git "$CLONE" && git -C "$CLONE" rev-parse HEAD && echo "$CLONE"
+   CLONE="$(mktemp -d)/bridgeboard-server" && git clone --depth 1 --branch v0.1.1 https://github.com/OneMoreLab-jp/bridgeboard-server.git "$CLONE" && git -C "$CLONE" rev-parse HEAD && echo "$CLONE"
    ```
 
    シェルの変数や作業フォルダは、コマンドごとに引き継がれないことがある。そこで、以降のコマンドはどれも、手順1で出たパスへの `cd` から始める（`<手順1で出たパス>` のところに、そのパス自体を引用符つきで書く）。
