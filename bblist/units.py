@@ -30,7 +30,7 @@ UNDRAWN_TYPES = (                                                               
     "api-request", "api-request-blob", "api-request-shape", "cost-state", "tools-used",
     "file-history-snapshot", "file-history-delta", "worktree-state", "relocated", "pr-link", "frame-link",
     "artifact-autoreact-ledger", "artifact-comment-monitor", "started", "result", "launched",
-    "teleported-from", "teleport-skipped-branch")
+    "teleported-from", "teleport-skipped-branch", "session-owner")
 KNOWN_TYPES = frozenset(DRAWN_TYPES + UNDRAWN_TYPES)
 KNOWN_ORIGIN_KINDS = frozenset(("human", "peer", "task-notification", "coordinator"))   # user の行の origin.kind
 

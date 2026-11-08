@@ -2,7 +2,8 @@
 
 Python 3.9 の標準ライブラリだけで動かす。
 
-`~/.claude/sessions/<PID>.json` だけを読む（glob は *.json だけ。隣の <PID>.<64桁>.key は開かない）。
+`~/.claude/sessions/<PID>.json` を読む（glob は *.json だけ。隣の <PID>.<64桁>.key は開かない）。
+名前が自動で作られたもの（nameSource が "derived"）のときだけ、会話ログの末尾から題を読む（bblist/titles.py）。
 フォルダ名を文字列のまま比べない。比べるのは folder_id（realpath を NFC にそろえた鍵）か、NFC にそろえた後。
 """
 from __future__ import annotations
@@ -20,6 +21,7 @@ from pathlib import Path
 from . import gitcmd
 from .discover import TranscriptFolders
 from .paths import deny_stamp, files_visible, folder_id, nfc
+from .titles import LogTitles
 
 
 def ps_start(pid: int) -> str | None:
@@ -113,6 +115,7 @@ class Catalog:
         （claude_dir/projects）の作業フォルダ（cwd）のうち見せてよいものを出す。空で launcher_auto が偽なら、ランチャーは空
         （セッションのあるフォルダだけがプロジェクトになる）。"""
         self._secret = secret                                      # rootId の塩（secrets_store）。必ず渡す（既定は無い）
+        self._titles = LogTitles(Path(claude_dir) / "projects")    # 自動で作られた名前の代わりに出す題
         self._sessions_dir = Path(claude_dir) / "sessions"
         self._launcher_roots = [(Path(r), int(d)) for r, d in launcher_roots]
         self._transcripts = (TranscriptFolders(Path(claude_dir) / "projects")
@@ -343,6 +346,8 @@ class Catalog:
                 project_id, _, category = identify(project_path)
                 root_id, root_visible, _ = identify(root_path, base=project_path if worktree is not None else None)
                 name = o.get("name")
+                if o.get("nameSource") == "derived":
+                    name = self._titles.title(o.get("sessionId")) or name
                 row = {
                     "bridgeSessionId": o["bridgeSessionId"], "url": f"https://claude.ai/code/{o['bridgeSessionId']}",
                     "pid": o["pid"], "sessionId": o.get("sessionId"), "projectId": project_id, "rootId": root_id,
@@ -362,6 +367,7 @@ class Catalog:
         self._idents = {k: v for k, v in self._idents.items() if k in known}
         cwds = {o["cwd"] for o in newest.values()}
         self._places = {c: v for c, v in self._places.items() if c in cwds}
+        self._titles.keep({o["sessionId"] for o in newest.values() if isinstance(o.get("sessionId"), str)})
         rows.sort(key=lambda s: (-_num(s["updatedAt"]), s["pid"]))
         ordered = sorted(projects.values(), key=lambda p: (p["name"], p["id"]))
         hidden = frozenset(v[0] for v in known.values() if not v[1]) - roots.keys()   # 同じ rootId が見せてよい側にもあれば見せる

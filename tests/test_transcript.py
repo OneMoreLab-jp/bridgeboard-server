@@ -625,6 +625,11 @@ class TranscriptDiagnosticsTest(StoreCase):
         for name in FIXTURES:
             self.assertEqual(self.read_all((FIX / name).read_bytes(), "fx"), self.diag(), name)
 
+    def test_session_owner_is_a_known_type(self):
+        # Claude Code 2.1.31x が書く。中身はアカウントの ID だけで描かない。知らないままだと、アプリに「サーバーを新しくして」の帯が出続ける
+        self.assertEqual(self.read_all(line({"type": "session-owner", "accountUuid": "a", "organizationUuid": "o", "sessionId": SID})),
+                         self.diag())
+
     def test_drawn_types_are_the_marked_ones(self):
         # 読む目印と知っている種類の「描く」側は同じ一覧から来る（片方だけ足して食い違わない）
         for t in DRAWN_TYPES:
