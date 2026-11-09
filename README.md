@@ -32,7 +32,7 @@ The easiest way is the setup prompt. Open Claude Code in any folder on the Mac, 
 Or do it yourself in Terminal (use the tag of the release you want):
 
 ```bash
-git clone --depth 1 --branch v0.1.2 https://github.com/OneMoreLab-jp/bridgeboard-server.git
+git clone --depth 1 --branch v0.1.3 https://github.com/OneMoreLab-jp/bridgeboard-server.git
 cd bridgeboard-server
 git rev-parse HEAD          # compare with the tag on GitHub
 ./install.sh --check        # changes nothing

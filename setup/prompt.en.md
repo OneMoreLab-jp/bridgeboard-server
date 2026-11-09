@@ -10,10 +10,10 @@ I want to use the BridgeBoard iPad app with this Mac. BridgeBoard server is a sm
 
 ## Steps
 
-1. Download the release `v0.1.2` into a new temporary folder (never into the folder I have open). This one command prints the commit id and then the absolute path of the downloaded folder. Tell me the commit id (I will compare it with the tag on GitHub) and keep the path:
+1. Download the release `v0.1.3` into a new temporary folder (never into the folder I have open). This one command prints the commit id and then the absolute path of the downloaded folder. Tell me the commit id (I will compare it with the tag on GitHub) and keep the path:
 
    ```
-   CLONE="$(mktemp -d)/bridgeboard-server" && git clone --depth 1 --branch v0.1.2 https://github.com/OneMoreLab-jp/bridgeboard-server.git "$CLONE" && git -C "$CLONE" rev-parse HEAD && echo "$CLONE"
+   CLONE="$(mktemp -d)/bridgeboard-server" && git clone --depth 1 --branch v0.1.3 https://github.com/OneMoreLab-jp/bridgeboard-server.git "$CLONE" && git -C "$CLONE" rev-parse HEAD && echo "$CLONE"
    ```
 
    Shell variables and the working directory may not carry over from one command to the next, so every later command below starts with `cd` to the path printed by step 1 (write the path itself in place of `<path from step 1>`, in quotes).

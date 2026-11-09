@@ -32,7 +32,7 @@ BridgeBoard は OneMore Lab の独立したプロジェクトです。**Anthropi
 自分でやるときは、ターミナルで（タグは欲しいリリースのものに）：
 
 ```bash
-git clone --depth 1 --branch v0.1.2 https://github.com/OneMoreLab-jp/bridgeboard-server.git
+git clone --depth 1 --branch v0.1.3 https://github.com/OneMoreLab-jp/bridgeboard-server.git
 cd bridgeboard-server
 git rev-parse HEAD          # GitHub のタグと見比べる
 ./install.sh --check        # 何も変えない
